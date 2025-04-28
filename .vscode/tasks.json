@@ -9,7 +9,7 @@
                 "-o",
                 "build/mips_pipeline.vvp",
                 "src/*.v",
-                // "tb/mips_tb.v"
+                "tb/ins_fetch_tb.v"
             ],
             "group": {
                 "kind": "build",

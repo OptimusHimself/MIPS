@@ -1,0 +1,18 @@
+[
+    {
+      "key": "ctrl+alt+c",
+      "command": "workbench.action.tasks.runTask",
+      "args": "Verilog: Compile"
+    },
+    {
+      "key": "ctrl+alt+r",
+      "command": "workbench.action.tasks.runTask",
+      "args": "Verilog: Run Simulation"
+    },
+    {
+      "key": "ctrl+alt+w",
+      "command": "workbench.action.tasks.runTask",
+      "args": "Verilog: View Waveform"
+    }
+]
+  
