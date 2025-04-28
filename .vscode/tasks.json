@@ -1,0 +1,59 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build MIPS Pipeline",
+            "type": "shell",
+            "command": "iverilog",
+            "args": [
+                "-o",
+                "build/mips_pipeline.vvp",
+                "src/*.v",
+                // "tb/mips_tb.v"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "Compile all Verilog source and testbench into a simulation executable",
+            "problemMatcher": []
+        },
+        {
+            "label": "Run Simulation",
+            "type": "shell",
+            "command": "vvp",
+            "args": [
+                "build/mips_pipeline.vvp"
+            ],
+            "group": {
+                "kind": "test",
+                "isDefault": false
+            },
+            "detail": "Execute the simulation to produce a VCD waveform"
+        },
+        {
+            "label": "View Waveform",
+            "type": "shell",
+            "command": "gtkwave",
+            "args": [
+                "output/mips_waveform.vcd"
+            ],
+            "group": "none",
+            "detail": "Open the generated VCD file in GTKWave"
+        },
+        {
+            "label": "Clean Build",
+            "type": "shell",
+            "command": "rm",
+            "args": [
+                "-rf",
+                "build",
+                "*.out",
+                "output/*.vcd"
+            ],
+            "group": "none",
+            "detail": "Remove build artifacts and output files"
+        }
+    ]
+  }
+  
