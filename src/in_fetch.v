@@ -48,7 +48,7 @@ module NextPCcalculator(
     input [15:0] npc_in_imm16,
     input [25:0] npc_in_imm26,
     input [9:0] im_out_addr,   // 来自PC模块的当前地址偏移
-    input npc_sel, alu_zero, isJump,
+    input npc_sel, alu_zero, isJump, 
     output reg [31:0] npc_out_addr
 );
     // 0000_3000 -> 0000hex 0011 0000 0000 0000
@@ -86,9 +86,9 @@ endmodule
 // PC输入：32位NPC计算出来的指令。如果要观察MARS的模拟结果，可以看NPC的计算结果，和PC的输入信号
 // PC输出：10位地址指令。 用于在指令寄存器组取指令
 module PC (
-    input [31:0] npc_out_addr,
-    input clk, rst_pc,  
-    output reg [9:0] pc_out
+    input [31:0] npc_out_addr, // NextPC's  output
+    input clk, rst_pc,    
+    output reg [9:0] pc_out  // 寄存器组大小1KB ， 10 bit
 );
     wire [31:0] byte_offset = npc_out_addr - 32'h00003000;  // 字节偏移
     wire [9:0] word_addr = byte_offset[11:2];              // 字地址（右移2位）
