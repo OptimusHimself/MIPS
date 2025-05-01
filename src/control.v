@@ -9,8 +9,6 @@
 // i type: op + rs + rt + imm16
 //   lw,    sw,     ori,    lui/lhi,    beq       
 //   100011  101011  001101  011001     000100
-
-
 module controler (
 
     input [31:0] instruction,  // ins_fetch output
@@ -20,8 +18,8 @@ module controler (
     output [25:0] imm26,  
     output [5:0] shamt,
     
-    output select_anotherAluSource // alu another source select siganl 
-    output select_aluPerformance, // 控制alu的行为
+    output select_anotherAluSource, // alu another source select signal
+    output [1:0] select_aluPerformance, // 控制alu的行为
     output isJump,  // 让alu做拓展：26->32
     output ctrl_dataMem2reg,
     output npc_sel,
@@ -33,40 +31,38 @@ module controler (
 );
 
     wire [5:0] funct = instruction[5:0];
+    wire [5:0] opcode;
     
     assign opcode = instruction[31:26];
     assign rAddr_source = instruction[25:21];
     assign rAddr_anotherSource_dest = instruction[20:16];
-    assign rAddr_dest_rtype = instruction[15:11],
+    assign rAddr_dest_rtype = instruction[15:11];
     assign imm16 = instruction[15:0];
     assign imm26 = instruction[25:0];
     assign shamt = instruction[10:6]; // 形同虚设
 
     
-    assign xadd = (funct == 6'b100000);
-    assign xsub = (funct == 6'b100010);
-    assign xbeq = (opcode == 6'b000100);
-    assign xori = (opcode == 6'b001101);
-    assign xlui = (opcode == 6'b011001);
-    assign xlw = (opcode == 6'b100011);
-    assign xsw = (opcode == 6'b101011);
-    assign xjump = (opcode == 6'b000010);
+    wire xadd = (opcode == 6'b000000) && (funct == 6'b100000);
+    wire xsub = (opcode == 6'b000000) && (funct == 6'b100010);
+    wire xbeq = (opcode == 6'b000100);
+    wire xori = (opcode == 6'b001101);
+    wire xlui = (opcode == 6'b011001);
+    wire xlw = (opcode == 6'b100011);
+    wire xsw = (opcode == 6'b101011);
+    wire xjump = (opcode == 6'b000010);
 
-    assign select_regWritten = (xadd | xsub ) ? 1 : 0; // add sub ori lui
-    assign npc_sel = (xbeq) ? 1 : 0;
-    assign ctrl_regFile_write = (xadd | xsub | xori | xlui) ? 1 : 0; 
-    assign isJump = (xjump) ? 1 : 0;  // jump
-    assign ctrl_dataMem_Write = (xsw) ? 1 : 0;  // sw
-    assign ctrl_dataMem2reg = (xlw) ? 1 : 0; // lw
-    assign select_anotherAluSource = (ori | lw) ? 1 : 0;
-    assign select_aluPerformance = (xadd | xlw | xsw ) ? 00 
-                                    : (xsub | xbeq) ? 10 
-                                    : (xori ) ? 01 : 11;
-                                   // : (xlui) ? 11; // alu 
+    assign select_regWritten = (xadd | xsub) ? 1'b1 : 1'b0; // add sub vs ori lui
+    assign npc_sel = xbeq;
+    assign ctrl_regFile_write = (xadd | xsub | xori | xlui | xlw) ? 1'b1 : 1'b0; 
+    assign isJump = xjump;  // jump
+    assign ctrl_dataMem_Write = xsw;  // sw
+    assign ctrl_dataMem2reg = xlw; // lw
+    assign select_anotherAluSource = (xori | xlw | xsw | xlui) ? 1'b1 : 1'b0;
+    assign select_aluPerformance = (xadd | xlw | xsw) ? 2'b00 
+                                 : (xsub | xbeq) ? 2'b10 
+                                 : (xori) ? 2'b01
+                                 : (xlui) ? 2'b11 : 2'b00; // alu operations
     
-
-
-
 endmodule
 
 
