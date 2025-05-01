@@ -23,9 +23,11 @@ module controler (
     output select_anotherAluSource // alu another source select siganl 
     output select_aluPerformance, // 控制alu的行为
     output isJump,  // 让alu做拓展：26->32
+    output ctrl_dataMem2reg,
+    output npc_sel,
 
-    // npc, jump..., beq
-    output ctrl_regWrite, select_regWritten
+    output ctrl_regFile_write, select_regWritten,
+    output ctrl_dataMem_Write
 
  
 );
@@ -40,91 +42,76 @@ module controler (
     assign imm26 = instruction[25:0];
     assign shmnt = instruction[10:6]; // 形同虚设
 
-// 对一些控制信号初始化
-    assign isJump = 1'b0;
-    assign npc_sel = 1'b0;
-    assign 
-    // conditions: -> rs rd rt
-    /* 
-    1. addu 
-    2. subu
-    3. lw
-    4. sw
-    5. beq
-    6. jp
-    7. lui/lhi
-    8. ori 
+    
+    assign xadd = (funct == 6'b100000);
+    assign xsub = (funct == 6'b100010);
+    assign xbeq = (opcode == 6'b0001000);
+    assign xori = (opcode == 6'b001101);
+    assign xlui = (opcode == 6'b011001);
+    assign xlw = (opcode == 6'b100011);
+    assign xsw = (opcode == 6'b101011);
+    assign xjump = (opcode == 6'b000010);
 
-    */
-    // R FORMAT INSTRUCTION
-    if (opcode == 6'b0 && funct == 6'b100000) begin
-        select_anotherAluSource = 1'b0;
-        assign select_aluPerformance = 2'b00 ; // alu addition  // 要不要写assign?, 如果前面assign 过了，之后还能不能用assign赋值？
-        assign ctrl_regWrite = 1'b1 ; // enable to write the regFile
-    end
-    else if (opcode == 6'b0 && funct == 6'b100000) begin
-        assign select_aluPerformance = 2'b10; // alu subtraction
-        assign ctrl_regWrite = 1'b1
-    end
-    // jump
-    else if (opcode == 6'b00010) begin
-        assign isJump = 1'b1; 
-    end
-    // beq 
-    else if (opcode == 6'b000100) begin
-        npc_sel = 1'b1;
-        select_aluPerformance = 2'b10; 
-
-    end
-
-    // lw   sw
-    else if (opcode == 6'b100011) begin
-        select_aluPerformance = 2'b00;
-        select_anotherAluSource = 
-
-    end
-    else if (opcode == 6'b101011) begin
-        select_aluPerformance = 2'b00; // alu做加法，可以加负数。
-    end
+    assign select_regWritten = (xadd | xsub ) ? 1 : 0; // add sub ori lui
+    assign npc_sel = (xbeq) ? 1 : 0;
+    assign ctrl_regFile_write = (xadd | xsub | xori | xlui) ? 1 : 0; 
+    assign isJump = (xjump) ? 1 : 0;  // jump
+    assign ctrl_dataMem_Write = (xsw) ? 1 : 0;  // sw
+    assign ctrl_dataMem2reg = (xlw) ? 1 : 0; // lw
+    assign select_anotherAluSource = (ori | lw) ? 1 : 0;
+    assign select_aluPerformance = (xadd | xlw | xsw ) ? 00 
+                                    : (xsub | xbeq) ? 10 
+                                    : (xori ) ? 01
+                                    : (xlui) ? 11; // alu 
+    
 
 
 
 endmodule
 
 
-
-module regFile(
-    input clk,
+module regFile (
+    input clk, rst_regFile,
     input [4:0] rAddr_dest_rtype, rAddr_source, rAddr_anotherSource_dest,
-    input ctrl_regWrite,     //  high effective
-    input select_regWritten, // 选择被写的寄存器的地址来源：R-Format的rd 还是 I-Format的rt
-    input [31:0] alu_out, // addu, subu,把计算结果回写regFile
+    input ctrl_regFile_write,     // 高电平写使能
+    input select_regWritten,      // 1表示写rd，0表示写rt
+    input [31:0] alu_out,         // alu计算结果
 
-    output [31:0] regA, regB
- );
+    output [31:0] regA,           // ALU operand A
+    output reg [31:0] regB        // ALU operand B
+);
 
-    assign regA = regFile_[rAddr_source];
+    // 寄存器组，MIPS有32个通用寄存器
+    reg [31:0] regFile_32 [31:0];
 
-    reg [31:0] regFile_32 [7:0] ;  // 寄存器组 32个reg
-    always (@posedge clk) begin
+    // read port（组合逻辑，异步读取）
+    assign regA = regFile_32[rAddr_source];
 
-        // R-type alu结果写入寄存器组 , 用rAddr_dest_rtype的地址
-        if (ctrl_regWrite == 1 && select_regWritten == 1  ) begin
-            regFile_[rAddr_dest_rtype] = alu_out;
-            regB = regFile_[rAddr_anotherSource_dest]; 
-        end 
-        // I type lui, ori 结果写入寄存器组 , 用地址rAddr_anotherSource_dest
-        if (ctrl_regWrite == 1 && select_regWritten ==  0 ) begin
-            regFile_[rAddr_anotherSource_dest] = alu_out;
-           // regB
-        end
-        if ()
-
+    // regB 可选择组合逻辑方式更新（也可以用 always）
+    always @(*) begin
+        regB = regFile_32[rAddr_anotherSource_dest];
     end
 
-   
+    // write port（同步写入）
+    interger i;
+    always @(posedge clk or posedge rst_regFile ) begin  // 异步复位
+
+        if (rst_regFile) begin
+            for (i = 0; i < 32; i = i + 1)
+                regFile_32[i] <= 0;
+        end else begin
+            if (ctrl_regFile_write) begin
+                if (select_regWritten)
+                    regFile_32[rAddr_dest_rtype] <= alu_out;           // R-type: 写 rd
+                else
+                    regFile_32[rAddr_anotherSource_dest] <= alu_out;   // I-type: 写 rt
+            end
+        end
+    
+    end
 
 endmodule
+
 
 
 

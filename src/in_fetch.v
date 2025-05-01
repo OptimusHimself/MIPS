@@ -8,7 +8,9 @@
 
 module InsFetch_n32 (
     input clk, rst_im, rst_pc,  // 时钟 & reset
-    input npc_sel, alu_zero, isJump, // 控制NPC行为(跳转 or +4)
+    input npc_sel, // 控制NPC行为(跳转 or +4) 由controller给出
+    input alu_zero,  // 由alu_core给出
+    input isJump,  //由controller给出
     input npc_in_imm16, npc_in_imm26, // jump / beq
     output  [31:0] im_out_ins //  Output port expression must support continuous assignment.
 );
@@ -94,7 +96,7 @@ module PC (
     wire [9:0] word_addr = byte_offset[11:2];              // 字地址（右移2位）
     wire [9:0] bounded_addr = word_addr % 10'h400;         // 越界保护，限制在0-1023, 可以没有
 
-    always @(posedge clk, posedge rst_pc) begin
+    always @(posedge clk or posedge rst_pc) begin
         if (rst_pc) begin
             // 初始化为0x3000对应字地址（0xC00）
             pc_out <= 10'hC00; 

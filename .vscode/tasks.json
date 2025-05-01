@@ -18,6 +18,8 @@
             "detail": "Compile all Verilog source and testbench into a simulation executable",
             "problemMatcher": []
         },
+
+        
         {
             "label": "Run Simulation",
             "type": "shell",
@@ -31,6 +33,8 @@
             },
             "detail": "Execute the simulation to produce a VCD waveform"
         },
+
+
         {
             "label": "View Waveform",
             "type": "shell",
@@ -41,6 +45,8 @@
             "group": "none",
             "detail": "Open the generated VCD file in GTKWave"
         },
+
+
         {
             "label": "Clean Build",
             "type": "shell",
