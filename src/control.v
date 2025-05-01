@@ -40,12 +40,12 @@ module controler (
     assign rAddr_dest_rtype = instruction[15:11],
     assign imm16 = instruction[15:0];
     assign imm26 = instruction[25:0];
-    assign shmnt = instruction[10:6]; // 形同虚设
+    assign shamt = instruction[10:6]; // 形同虚设
 
     
     assign xadd = (funct == 6'b100000);
     assign xsub = (funct == 6'b100010);
-    assign xbeq = (opcode == 6'b0001000);
+    assign xbeq = (opcode == 6'b000100);
     assign xori = (opcode == 6'b001101);
     assign xlui = (opcode == 6'b011001);
     assign xlw = (opcode == 6'b100011);
@@ -61,8 +61,8 @@ module controler (
     assign select_anotherAluSource = (ori | lw) ? 1 : 0;
     assign select_aluPerformance = (xadd | xlw | xsw ) ? 00 
                                     : (xsub | xbeq) ? 10 
-                                    : (xori ) ? 01
-                                    : (xlui) ? 11; // alu 
+                                    : (xori ) ? 01 : 11;
+                                   // : (xlui) ? 11; // alu 
     
 
 
@@ -93,7 +93,7 @@ module regFile (
     end
 
     // write port（同步写入）
-    interger i;
+    integer i;
     always @(posedge clk or posedge rst_regFile ) begin  // 异步复位
 
         if (rst_regFile) begin
