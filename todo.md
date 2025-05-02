@@ -40,3 +40,24 @@ lw sw 1KB 使用 256 * 32 最好
 assign 用法：
 不能用在block（if else, always）
 用于给wire 且是 output赋值 中间wire变量由组合电路驱动不需要用assign
+
+
+## 自动化 习惯
+1. Makefile比task.json正规。因此，发布包含Makefile会更加正规。 当然，也可以发布task.json
+
+
+```bash
+
+# 编译所有 testbench
+make
+
+# 编译并运行 control_tb.v（或你指定的 TB 文件）
+make run TB=control_tb
+
+# 编译、运行，并用 GTKWave 打开 waveform.vcd
+make wave TB=control_tb
+
+# 清理输出
+make clean
+
+```

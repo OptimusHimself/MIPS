@@ -1,30 +1,32 @@
 # 顶层Makefile
 
-# 所有 Verilog 源文件
+# 所有源文件和测试文件
 SRC := $(wildcard src/*.v)
-
-# 所有 testbench 文件
 TBS := $(wildcard tb/*.v)
 
-# 输出目录
+# 编译输出目录
 BUILD_DIR := build
 
-# 为每个 testbench 生成对应的输出目标路径
+# .out 编译目标
 OUTS := $(patsubst tb/%.v, $(BUILD_DIR)/%.out, $(TBS))
 
-# 编译目标（默认）
+# 默认目标：编译所有 testbench
 all: $(OUTS)
 
-# 编译规则
+# 编译规则，每个 testbench 编译为 .out 文件
 $(BUILD_DIR)/%.out: tb/%.v $(SRC)
 	@mkdir -p $(BUILD_DIR)
 	iverilog -o $@ $^
 	@echo "Compiled $@"
 
-# 运行某个 testbench（例如 make run TB=alu_tb）
+# 运行指定 testbench 并生成 vcd 文件（默认文件名 waveform.vcd）
 run:
 	vvp $(BUILD_DIR)/$(TB).out
 
-# 清除输出文件
+# 运行并查看波形：默认查找 waveform.vcd
+wave: run
+	gtkwave waveform.vcd &
+
+# 清除所有中间和输出文件
 clean:
-	rm -rf $(BUILD_DIR)
+	rm -rf $(BUILD_DIR) *.vcd
