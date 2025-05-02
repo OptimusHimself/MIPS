@@ -36,3 +36,7 @@ rst_pc
 输出类型可以是reg
 
 lw sw 1KB 使用 256 * 32 最好
+
+assign 用法：
+不能用在block（if else, always）
+用于给wire 且是 output赋值 中间wire变量由组合电路驱动不需要用assign

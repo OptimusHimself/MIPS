@@ -11,13 +11,17 @@ module alu_core (
     // 当select_anotherAluSource=1时，需要对立即数进行适当处理
     wire [31:0] immediate_zero_ext = {16'b0, imm16}; // ORI用零扩展
     wire [31:0] immediate_lui = {imm16, 16'b0}; // LUI用左移16位
-    
-    // 选择第二个操作数（寄存器值或立即数）
+
+    wire [15:0] sign_extend = {16{imm16[15]}};
+    wire [31:0] immediate_sign_ext = {sign_extend, imm16};
+
+    // 选择第二个操作数（寄存器值或立即数）lui操作第二个立即数的拓展规则和
     wire [31:0] operand2 = select_anotherAluSource ? 
-                           ((select_aluPerformance == 2'b01) ? immediate_zero_ext : 
-                            (select_aluPerformance == 2'b11) ? immediate_lui : 
-                            {16{imm16[15]}, imm16}) : // 符号扩展用于lw/sw
-                           aluSource2;
+                       ((select_aluPerformance == 2'b01) ? immediate_zero_ext : 
+                        (select_aluPerformance == 2'b11) ? immediate_lui : 
+                        immediate_sign_ext) :
+                       aluSource2;
+
     
     // ALU计算逻辑. 
     always @(*) begin

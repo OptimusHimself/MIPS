@@ -41,7 +41,7 @@ module controler (
     assign imm26 = instruction[25:0];
     assign shamt = instruction[10:6]; // 形同虚设
 
-    
+    // xadd  isAdd 判断是否是哪个指令
     wire xadd = (opcode == 6'b000000) && (funct == 6'b100000);
     wire xsub = (opcode == 6'b000000) && (funct == 6'b100010);
     wire xbeq = (opcode == 6'b000100);
@@ -90,7 +90,7 @@ module regFile (
 
     // write port（同步写入）
     integer i;
-    always @(posedge clk or posedge rst_regFile ) begin  // 异步复位
+    always @(posedge clk or posedge rst_regFile) begin  // 异步复位
 
         if (rst_regFile) begin
             for (i = 0; i < 32; i = i + 1)
