@@ -1,32 +1,28 @@
-# 顶层Makefile
+# Top-level Makefile for MIPS Verilog Project
 
-# 所有源文件和测试文件
 SRC := $(wildcard src/*.v)
-TBS := $(wildcard tb/*.v)
+TBS := $(basename $(notdir $(wildcard tb/*.v)))
+BUILD := build
+OUTPUT := output
 
-# 编译输出目录
-BUILD_DIR := build
+# Default target
+all: build
 
-# .out 编译目标
-OUTS := $(patsubst tb/%.v, $(BUILD_DIR)/%.out, $(TBS))
+# Build all testbenches
+build: $(TBS:%=$(BUILD)/%.out)
 
-# 默认目标：编译所有 testbench
-all: $(OUTS)
+# Compile rule for each testbench
+$(BUILD)/%.out: tb/%.v $(SRC)
+	@mkdir -p $(BUILD)
+	iverilog -o $@ $^ -I src
 
-# 编译规则，每个 testbench 编译为 .out 文件
-$(BUILD_DIR)/%.out: tb/%.v $(SRC)
-	@mkdir -p $(BUILD_DIR)
-	iverilog -o $@ $^
-	@echo "Compiled $@"
+# Run simulation and generate VCD
+wave: $(BUILD)/$(TB).out
+	vvp $<
+	gtkwave $(OUTPUT)/waveform_$(TB).vcd &
 
-# 运行指定 testbench 并生成 vcd 文件（默认文件名 waveform.vcd）
-run:
-	vvp $(BUILD_DIR)/$(TB).out
-
-# 运行并查看波形：默认查找 waveform.vcd
-wave: run
-	gtkwave waveform.vcd &
-
-# 清除所有中间和输出文件
+# Clean all intermediate files
 clean:
-	rm -rf $(BUILD_DIR) *.vcd
+	rm -rf $(BUILD)/* $(OUTPUT)/*
+
+.PHONY: all build wave clean

@@ -135,7 +135,7 @@ module InsFetch_n32_tb;
 
     // Optional: Waveform dump for viewing in a waveform viewer
     initial begin
-        $dumpfile("ins_fetch_tb.vcd");
+        $dumpfile("output/waveform_ins_fetch_tb.vcd"); //很重要的一行代码！尤其是用gtkwave仿真
         $dumpvars(0, InsFetch_n32_tb);
     end
 endmodule
