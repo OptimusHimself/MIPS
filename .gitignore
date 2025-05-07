@@ -3,3 +3,6 @@
 
 # ignore all .vcd files
 /output
+
+# temp folder is a trash can
+/temp

@@ -52,7 +52,7 @@ module controler (
     wire xjump = (opcode == 6'b000010);
 
     assign select_regWritten = (xadd | xsub) ? 1'b1 : 1'b0; // add sub vs ori lui
-    assign npc_sel = xbeq;
+    assign npc_sel = xbeq; // beq <- npc_sel=1
     assign ctrl_regFile_write = (xadd | xsub | xori | xlui | xlw) ? 1'b1 : 1'b0; 
     assign isJump = xjump;  // jump
     assign ctrl_dataMem_Write = xsw;  // sw

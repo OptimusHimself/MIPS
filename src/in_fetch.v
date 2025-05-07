@@ -8,12 +8,17 @@
 
 module InsFetch_n32 (
     input clk, rst_im, rst_pc,  // 时钟 & reset
-    input npc_sel, // 控制NPC行为(跳转 or +4) 由controller给出
+    input npc_sel, // 控制NPC行为(跳转 or +4) 由controller给出 =0:default, =1 beq
     input alu_zero,  // 由alu_core给出
     input isJump,  //由controller给出
     input npc_in_imm16, npc_in_imm26, // jump / beq
     output  [31:0] im_out_ins //  Output port expression must support continuous assignment.
 );
+     // 必须定义连接信号
+    wire [9:0] pc_out;
+    wire [9:0] im_out_addr;
+    wire [31:0] npc_out_addr;
+
      InsMem_1kB im_unit(
         .pc_out(pc_out),
         .clk(clk),
@@ -78,6 +83,10 @@ module NextPCcalculator(
             - 左移2位（字地址转字节地址）
             - 加PC+4的基准地址 */
             npc_out_addr = pc_current + 32'h4 + ext_imm16;
+        end 
+        // not beq nor jump, +4
+        else begin
+            npc_out_addr = pc_current + 32'h4;  // 默认 +4 前进
         end
     end
     
