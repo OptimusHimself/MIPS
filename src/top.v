@@ -1,5 +1,5 @@
 module top (
-    input clk, rst_im, rst_pc, rst_regFile, rst_dm
+    input clk, rst_im, rst_pc, rst_regFile, rst_dm,
     output [31:0] alu_out
 
 );
@@ -20,7 +20,8 @@ module top (
     wire select_anotherAluSource;
     wire select_regWritten;
     // wire [31:0] alu_out;
-    wire [31:0] aluSource1, [31:0] aluSource2;
+    wire [31:0] aluSource1;
+    wire [31:0] aluSource2;
     
     InsFetch_n32 insfetch_unit (
         .clk(clk),
@@ -43,7 +44,6 @@ module top (
         .rAddr_dest_rtype(rAddr_dest_rtype),
         .rAddr_source(rAddr_source),
         .rAddr_anotherSource_dest(rAddr_anotherSource_dest),
-        .npc_sel(npc_sel),
         .select_regWritten(select_regWritten),
         .imm16(imm16),
         .imm26(imm26),
@@ -65,7 +65,7 @@ module top (
         .alu_out(alu_out),
         // output
         .regA(aluSource1),
-        .regB(aluSource2),
+        .regB(aluSource2)
 
     );
 

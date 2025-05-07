@@ -1,4 +1,4 @@
-`timescale 1ns / 1ps
+`timescale 1ps / 1ps
 
 module top_tb;
     // Testbench signals
@@ -21,7 +21,7 @@ module top_tb;
 
     // Reset sequence
     initial begin
-        rst_im = 1;
+        // rst_im = 1;
         rst_pc = 1;
         rst_regFile = 1;
         #10;
@@ -39,6 +39,6 @@ module top_tb;
     // Waveform dump
     initial begin
         $dumpfile("output/waveform_top_tb.vcd");
-        $dumpvars(0, top_unt);
+        $dumpvars(3, top_tb);
     end
 endmodule
