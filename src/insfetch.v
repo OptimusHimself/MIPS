@@ -5,7 +5,7 @@
 // control signals: npc_sel, zero
 
 // InsMem size: 1KB, im_addr[9:0]
-`timescale 1ns / 1ns
+`timescale 1ns / 1ps
 
 
 module insfetch (
@@ -104,7 +104,7 @@ module PC (
     input clk, rst_pc,    
     output reg [9:0] pc_out  // 寄存器组大小1KB ， 10 bit
 );
-    wire [31:0] byte_offset = npc_out_addr - 32'h00003000;  // 字节偏移
+    wire [31:0] byte_offset = npc_out_addr - 32'h00003000;  // 地址偏移
     wire [9:0] word_addr = byte_offset[11:2];              // 字地址（右移2位）
     wire [9:0] bounded_addr = word_addr % 11'h400;         // 越界保护，限制在0-1023, 可以没有
 

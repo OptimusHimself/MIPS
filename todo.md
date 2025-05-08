@@ -48,9 +48,21 @@ unt的输入需要用reg类型提前声明。
 unt的输出用wire类型提前声明。
 
 ## timescale
-``timescale 1ns/1ps` 后者是精度time precision。前者是时间间隔time unit
+``timescale 1ns/1ps` 后者是精度time precision。前者是时间间隔time unit，我喜欢叫延迟指令单位/代码单位。整数部分的单位。
+```cpp
+`timescale 1ns/1ps
+[0] start time.
+[114900] end time.
 
-可以在设计模块使用时间设置命令和延迟命令。
+\\ 114900 的单位：和精度一样，ps
+\\ 使用更细微的精度让代码支持 #4.9，4,9ns。 反之，如果用1ns/1ns的timescale
+
+延迟指令的单位: 和“左边的”单位一样，是ns
+```
+- 送给开发：`1ns/1ps`是好东西，他能让你写更高灵活度的代码。允许你设置更细微的精度。
+- 而且，在观察波形时，信号之间可以同步。而粗精度会有延迟效应？本该在同一个时钟沿出现的两个信号间隔了一个周期
+
+- 可以在design module使用时间设置命令和延迟命令。
 
 ## integer类型的用法
 似乎不可以在block创建。。。
