@@ -1,5 +1,6 @@
 module top (
     input clk, rst_im, rst_pc, rst_regFile, rst_dm,
+    
     output [31:0] alu_out
 
 );
@@ -13,13 +14,12 @@ module top (
     wire alu_zero;
     wire isJump;
     wire ctrl_dataMem2reg, ctrl_dataMem_Write, ctrl_regFile_write;
-    wire dm_write_data;
+    wire [31:0] dm_write_data;
     wire [31:0] dm_addr;
     wire [4:0] rAddr_dest_rtype, rAddr_source, rAddr_anotherSource_dest;
-    wire [1:0] [1:0] select_aluPerformance;
+    wire [1:0] select_aluPerformance;
     wire select_anotherAluSource;
     wire select_regWritten;
-    // wire [31:0] alu_out;
     wire [31:0] aluSource1;
     wire [31:0] aluSource2;
     
@@ -63,7 +63,6 @@ module top (
         .ctrl_regFile_write(ctrl_regFile_write),
         .select_regWritten(select_regWritten),
         .alu_out(alu_out),
-        // output
         .regA(aluSource1),
         .regB(aluSource2)
 

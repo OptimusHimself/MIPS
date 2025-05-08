@@ -30,7 +30,7 @@ module alu_core (
             2'b10: alu_out = aluSource1 - operand2;     // 减法(sub/beq)
             2'b01: alu_out = aluSource1 | operand2;     // 或运算(ori)
             2'b11: alu_out = operand2;                  // LUI直接输出立即数
-            default: alu_out = 32'b0;
+            // default: alu_out = 32'b0;
         endcase
     end
     

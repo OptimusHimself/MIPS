@@ -5,13 +5,16 @@
 // control signals: npc_sel, zero
 
 // InsMem size: 1KB, im_addr[9:0]
+`timescale 1ns / 1ns
+
 
 module InsFetch_n32 (
     input clk, rst_im, rst_pc,  // 时钟 & reset
     input npc_sel, // 控制NPC行为(跳转 or +4) 由controller给出 =0:default, =1 beq
     input alu_zero,  // 由alu_core给出
     input isJump,  //由controller给出
-    input npc_in_imm16, npc_in_imm26, // jump / beq
+    input [15:0] npc_in_imm16,
+    input [25:0] npc_in_imm26, // jump / beq
     output  [31:0] im_out_ins //  Output port expression must support continuous assignment.
 );
      // 必须定义连接信号
@@ -103,12 +106,12 @@ module PC (
 );
     wire [31:0] byte_offset = npc_out_addr - 32'h00003000;  // 字节偏移
     wire [9:0] word_addr = byte_offset[11:2];              // 字地址（右移2位）
-    wire [9:0] bounded_addr = word_addr % 10'h400;         // 越界保护，限制在0-1023, 可以没有
+    wire [9:0] bounded_addr = word_addr % 11'h400;         // 越界保护，限制在0-1023, 可以没有
 
     always @(posedge clk or posedge rst_pc) begin
         if (rst_pc) begin
             // 初始化为0x3000对应字地址（0xC00）
-            pc_out <= 10'hC00; 
+            pc_out <= 10'b0; // 
         end 
         else begin
             
@@ -119,7 +122,7 @@ module PC (
                 - 字节地址转换为字地址。用于指令存储器寻址
                 - 别忘了，MIPS指令是4字节。四字节对其 0 4 8 12 ......所以字节地址的最低两位要只能是00 
             */
-            pc_out <=bounded_addr;  // 确保地址在0-1023范围
+            pc_out <= bounded_addr;  // 确保地址在0-1023范围
         end
     end
 endmodule
@@ -141,7 +144,7 @@ module InsMem_1kB (
     reg [7:0] regArr_im [0:1023]; // 1024字节 = 256条指令
 
     // 地址计算辅助信号 --- 很重要
-    wire [10:0] byte_addr = {pc_out, 2'b00}; // 转换为字节地址
+    // wire [10:0] byte_address = {pc_out, 2'b00}; // 转换为字节地址 ？？
 
     always @(posedge clk or posedge rst_im) begin
         if (rst_im) begin
@@ -154,16 +157,22 @@ module InsMem_1kB (
             // 输出当前地址（用于NPC计算）
             im_out_addr <= pc_out;
 
-            // 大端序读取（按MIPS规范）
-            im_out_ins <= {regArr_im[byte_addr],   // 最高有效字节
-                          regArr_im[byte_addr+1],
-                          regArr_im[byte_addr+2],
-                          regArr_im[byte_addr+3]};
+            // 大端序读取（按MIPS规范） --- 人类友好
+            im_out_ins <= {regArr_im[pc_out],   // 最高有效字节
+                          regArr_im[pc_out+1],
+                          regArr_im[pc_out+2],
+                          regArr_im[pc_out+3]};
         end
     end
 
     // 存储器初始化（示例）
     initial begin
+        # 0;
+        // alu_zero = 0; // cannot initialize input output wire.
         $readmemh("code.txt", regArr_im); // 从文件加载指令
     end
+
+
+
+
 endmodule

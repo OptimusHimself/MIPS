@@ -47,6 +47,32 @@ lw sw 1KB 使用 256 * 32 最好
 unt的输入需要用reg类型提前声明。
 unt的输出用wire类型提前声明。
 
+## timescale
+``timescale 1ns/1ps` 后者是精度time precision。前者是时间间隔time unit
+
+可以在设计模块使用时间设置命令和延迟命令。
+
+## integer类型的用法
+似乎不可以在block创建。。。
+
+## 在tb访问子模块
+暂时不学
+
+## testbench
+1. 为什么tb module不需要和design module那样有input output?
+2. 为什么tb 内实例化测试模块时input传入reg类型，output传入wire类型？
+
+答：
+1. 很好理解，因为tb是单独的模块，不需要向外部开放端口
+2. verilog reg类型是可以变化的量。而wire不可以。你不可以改变wire类型，你只能设计一个关系让他跟着某个东西变。
+
+## verilog最重要的几句话
+assign用于combinational logic
+always -> sequential logic
+
+
+
+
 ## 系统命令
 `dumpfile` 告诉仿真器保存波形文件的文件名. 用于创建vcd文件。
 `dumpvar` 指定仿真时写进vcd波形文件的信号。决定把那些信号写入vcd file.这将是你在gtkwave看到的信号。 
