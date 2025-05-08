@@ -23,7 +23,7 @@ module top (
     wire [31:0] aluSource1;
     wire [31:0] aluSource2;
     
-    InsFetch_n32 insfetch_unit (
+    insfetch insfetch_unit (
         .clk(clk),
         .rst_im(rst_im),
         .rst_pc(rst_pc),
@@ -78,7 +78,7 @@ module top (
         .dm_read_data(aluSource2)
     );
 
-    alu_core alu_unit(
+    alu alu_unit(
         .select_aluPerformance(select_aluPerformance),
         .select_anotherAluSource(select_anotherAluSource),
         .aluSource1(aluSource1),

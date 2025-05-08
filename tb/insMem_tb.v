@@ -1,3 +1,4 @@
+// make clean && make build && make wave TB=insMem_tb
 // insmem读如指令是否正常。能否跟着信号读出命令。
 
 // TODO： 测试NPC和PC的计算长度
@@ -31,20 +32,24 @@ module insMem_tb;
         
         #10 rst_im = 0;
         #5  pc_out = 10'b0;
+// 可以用repeat优化
+        #10 pc_out = pc_out +4;
+        #10 pc_out = pc_out +4;
+        #10 pc_out = pc_out +4;
+        #10 pc_out = pc_out +4;
+        #10 pc_out = pc_out +4;
+        #10 pc_out = pc_out +4;
+        #5  rst_im = 1;
+        #5 rst_im = 0;
+        #10 pc_out = pc_out +4;
+        #10 pc_out = pc_out +4;
+        #10 pc_out = pc_out +4;
+        // #10 pc_out = pc_out +4;
+        // #10 pc_out = pc_out +4;
+        // #10 pc_out = pc_out +4;
+        // #10 pc_out = pc_out +4;
+        #30 pc_out = pc_out + 8; 
 
-        #10 pc_out = pc_out +4;
-        #10 pc_out = pc_out +4;
-        #10 pc_out = pc_out +4;
-        #10 pc_out = pc_out +4;
-        #10 pc_out = pc_out +4;
-        #10 pc_out = pc_out +4;
-        #10 pc_out = pc_out +4;
-        #10 pc_out = pc_out +4;
-        #10 pc_out = pc_out +4;
-        #10 pc_out = pc_out +4;
-        #10 pc_out = pc_out +4;
-        #10 pc_out = pc_out +4;
-        #10 pc_out = pc_out +4;
         #10 pc_out = pc_out +4;
         #10 pc_out = pc_out +4;
 
@@ -60,3 +65,10 @@ module insMem_tb;
     end
 
 endmodule
+
+/* --- REPORT --- 
+The instruction ouptut will follow the pc_out 
+when reset is on, im_out_addr will set to zero. but next clk, will equal to pc_out...
+therefore, all reset should be same....damn fun....
+
+*/

@@ -1,6 +1,16 @@
 # 使用make
 
 很简单，两种常用命令分别对应常用流程：编译所有design模块和testbench模块。然后用gtkwave查看波形。
+加入说你要给设计模块`transformer`, design module name: `transformer` // same as fileName
+写tb：
+tb file name: `transformer_tb.v`
+tb module name `module transformer_tb();`
+`dumpfile(output/waveform_transformer_tb.vcd);`
+`dumpvars(transformer_tb);`
+```bash
+make clean && make && make wave TB=transformer_tb
+// TB value: tb module name
+```
 
 ```bash
 

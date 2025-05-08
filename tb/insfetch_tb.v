@@ -1,6 +1,12 @@
+// make clean && make build && make wave TB=ins_fetch_tb
+// TB 的值是文件名
+// dumpfile的值是 output/waveform_ins_fetch_tb.vcd  waveform_{filename}
+//  $dumpvars(3, InsFetch_n32_tb); tb mooule name
+// clever name scheme: tb file name: {designmodule::FileName}_tb, dumpfile waveform_{tbFileName}  dumpvars 
+
 `timescale 1ns / 1ps
 
-module InsFetch_n32_tb;
+module insfetch_tb;
     // Testbench signals
     reg clk;
     reg rst_im, rst_pc;
@@ -8,10 +14,10 @@ module InsFetch_n32_tb;
     reg [15:0] npc_in_imm16;
     reg [25:0] npc_in_imm26;
     wire [31:0] im_out_ins;
-    
+
    
     // DUT instantiation
-    InsFetch_n32 dut (
+    insfetch dut (
         .clk(clk),
         .rst_im(rst_im),
         .rst_pc(rst_pc),

@@ -1,4 +1,4 @@
-module alu_core (
+module alu (
     input [1:0] select_aluPerformance,  // 00:加法, 10:减法, 01:ORI, 11:LUI
     input select_anotherAluSource, // 0:来自寄存器(rAnother), 1:来自立即数(immediate) OK
     input [31:0] aluSource1, // rs的值

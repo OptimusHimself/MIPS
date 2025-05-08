@@ -8,7 +8,7 @@
 `timescale 1ns / 1ns
 
 
-module InsFetch_n32 (
+module insfetch (
     input clk, rst_im, rst_pc,  // 时钟 & reset
     input npc_sel, // 控制NPC行为(跳转 or +4) 由controller给出 =0:default, =1 beq
     input alu_zero,  // 由alu_core给出
