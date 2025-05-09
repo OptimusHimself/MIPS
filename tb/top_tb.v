@@ -3,17 +3,21 @@
 module top_tb;
     // Testbench signals
     reg clk;
-    reg rst_im, rst_pc, rst_regFile;
+    reg rst, rst_regFile;
     wire [31:0] alu_out;
 
     // DUT instantiation
     top top_unt (
         .clk(clk),
-        .rst_im(rst_im),
-        .rst_pc(rst_pc),
+        .rst(rst),
         .rst_regFile(rst_regFile),
         .alu_out(alu_out)
     );
+
+    // top_unt.insfetch.npc_in_imm16 = 16'b0;
+    //does iverilog supports hierarchical references.
+  
+
 
     // Clock generation
     initial clk = 0;
@@ -21,12 +25,10 @@ module top_tb;
 
     // Reset sequence
     initial begin
-        //rst_im = 1;
-        //rst_pc = 1;
-        //rst_regFile = 1;
+        rst = 1;
+        rst_regFile = 1;
         // #10;
-        rst_im = 0;
-        rst_pc = 0;
+        rst = 0;
         rst_regFile = 0;
     end
 

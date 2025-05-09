@@ -5,7 +5,7 @@
 写tb：
 tb file name: `transformer_tb.v`
 tb module name `module transformer_tb();`
-`dumpfile(output/waveform_transformer_tb.vcd);`
+`dumpfile("output/waveform_transformer_tb.vcd");`
 `dumpvars(transformer_tb);`
 ```bash
 make clean && make && make wave TB=transformer_tb

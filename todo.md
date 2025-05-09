@@ -78,6 +78,9 @@ unt的输出用wire类型提前声明。
 1. 很好理解，因为tb是单独的模块，不需要向外部开放端口
 2. verilog reg类型是可以变化的量。而wire不可以。你不可以改变wire类型，你只能设计一个关系让他跟着某个东西变。
 
+###  写给开发：
+initial块初始化”驱动变量“：rst, array很重要！x / xxxx 无法用来计算！
+
 ## verilog最重要的几句话
 assign用于combinational logic
 always -> sequential logic

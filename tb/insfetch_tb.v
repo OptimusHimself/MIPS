@@ -1,15 +1,13 @@
-// make clean && make build && make wave TB=ins_fetch_tb
-// TB 的值是文件名
-// dumpfile的值是 output/waveform_ins_fetch_tb.vcd  waveform_{filename}
-//  $dumpvars(3, InsFetch_n32_tb); tb mooule name
-// clever name scheme: tb file name: {designmodule::FileName}_tb, dumpfile waveform_{tbFileName}  dumpvars 
+// 其实没啥检查的必要了。。因为没有控制信号。
+// 如果要让系统活起来。insfetch在rst后要把第一条命令给到control.
+// make clean && make build && make wave TB=insfetch_tb
 
 `timescale 1ns / 1ps
 
 module insfetch_tb;
     // Testbench signals
     reg clk;
-    reg rst_im, rst_pc;
+    reg rst;
     reg npc_sel, alu_zero, isJump;
     reg [15:0] npc_in_imm16;
     reg [25:0] npc_in_imm26;
@@ -17,10 +15,9 @@ module insfetch_tb;
 
    
     // DUT instantiation
-    insfetch dut (
+    insfetch insfetch_uut (
         .clk(clk),
-        .rst_im(rst_im),
-        .rst_pc(rst_pc),
+        .rst(rst),
         .npc_sel(npc_sel),
         .alu_zero(alu_zero),
         .isJump(isJump),
@@ -31,23 +28,44 @@ module insfetch_tb;
     
     // Clock generation
     always #5 clk = ~clk;
-    // integer i ;
-    
+
     initial begin
         clk = 0;
-        $display(">>> Dumping contents of regArr_im:");
+        // alu_zero = 0;
+        // isJump = 0;  // 只要是controld的输出，都不set
+        // npc_sel = 0;
+        rst = 1;
+        // npc_in_imm16 = 16'b0;
+        // npc_in_imm26 = 26'b0;
+        // im_out_ins = 0;
+        // $display(">>> Dumping contents of regArr_im:"); //我们从不看终端！
+
+        #5 rst = 0;
+
+
+        #10  rst = 1;
+
+        #5 rst = 0;
+
+
+        // #5 npc_in_imm16 = 16'h4;
+        // npc_in_imm26 = 26'h8;
+
         
-        // for ( i = 0; i < 1024; i = i + 1) begin">>> Dumping contents of regArr_im:");
-        
-        //     $display("regArr_im[%0d] = %02h", i, regArr_im[i]);
-        // end
+       
         # 300
         $finish;
     end
 
     // Optional: Waveform dump for viewing in a waveform viewer
     initial begin
-        $dumpfile("output/waveform_ins_fetch_tb.vcd"); //很重要的一行代码！尤其是用gtkwave仿真
-        $dumpvars(3, insfetch_tb);
+        $dumpfile("output/waveform_insfetch_tb.vcd"); //很重要的一行代码！尤其是用gtkwave仿真
+        $dumpvars(4, insfetch_tb);
     end
 endmodule
+
+/* which make me satisfied is that we can see instruction as outputs!
+however, the time didn't match. each clock will turn to a new instruction. but now, 2 clock cycle, one instruction.
+and is not because of timescale this time......damn.
+
+*/

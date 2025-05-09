@@ -1,5 +1,5 @@
 module top (
-    input clk, rst_im, rst_pc, rst_regFile, rst_dm,
+    input clk, rst, rst_regFile, rst_dm,
     
     output [31:0] alu_out
 
@@ -14,9 +14,11 @@ module top (
     wire alu_zero;
     wire isJump;
     wire ctrl_dataMem2reg, ctrl_dataMem_Write, ctrl_regFile_write;
-    wire [31:0] dm_write_data;
-    wire [31:0] dm_addr;
-    wire [4:0] rAddr_dest_rtype, rAddr_source, rAddr_anotherSource_dest;
+    // wire [31:0] dm_write_data;  //来自regB
+    // wire [31:0] dm_addr;
+    wire [4:0] rAddr_dest_rtype;
+    wire [4:0] rAddr_source;
+    wire [4:0] rAddr_anotherSource_dest;
     wire [1:0] select_aluPerformance;
     wire select_anotherAluSource;
     wire select_regWritten;
@@ -25,8 +27,7 @@ module top (
     
     insfetch insfetch_unit (
         .clk(clk),
-        .rst_im(rst_im),
-        .rst_pc(rst_pc),
+        .rst(rst),
         .npc_sel(npc_sel), //
         .isJump(isJump),
         .alu_zero(alu_zero),
@@ -71,8 +72,8 @@ module top (
     dataMemory dataMemory_unit(
         .clk(clk),
         .rst_dm(rst_dm),
-        .dm_addr(dm_addr),
-        .dm_write_data(dm_write_data),
+        .dm_addr(alu_out),
+        .dm_write_data(aluSource2), //fix: 
         .ctrl_dataMem_Write(ctrl_dataMem_Write),
         .ctrl_dataMem2reg(ctrl_dataMem2reg),
         .dm_read_data(aluSource2)
