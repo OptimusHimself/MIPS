@@ -19,21 +19,18 @@ module insfetch (
 );
      // 必须定义连接信号
     wire [9:0] pc_out;
-    // wire [9:0] im_out_addr;
     wire [31:0] npc_out_addr;
 
      InsMem_1kB im_unit(
         .pc_out(pc_out),
         .clk(clk),
         .rst(rst),
-        .im_out_ins(im_out_ins), //
-        // .im_out_addr(im_out_addr) //
+        .im_out_ins(im_out_ins) //
     );
 
      NextPCcalculator npc_unit(
         .npc_in_imm16(npc_in_imm16),
         .npc_in_imm26(npc_in_imm26),
-        // .im_out_addr(im_out_addr),
         .pc_out(pc_out),
         .npc_sel(npc_sel),
         .alu_zero(alu_zero),
@@ -52,26 +49,24 @@ module insfetch (
 
 endmodule
 
-// im_out_addr 没有拓展也没加偏移量：0x0000_3000。 均由NPC完成
 // npc_in_imm16, npc_in_imm26 t对应内置拓展器的行为不同
 // npc输出： 32位被拓展后的指令。
 module NextPCcalculator(
     input [15:0] npc_in_imm16,
     input [25:0] npc_in_imm26,
     input [9:0] pc_out,
-    // input [9:0] im_out_addr,   // 来自PC模块的当前地址偏移
     input npc_sel, alu_zero, isJump, 
     output reg [31:0] npc_out_addr
 );
     // 0000_3000 -> 0000hex 0011 0000 0000 0000
     // 当前PC的完整地址（字节地址）
-    wire [31:0] pc_current = 32'h00003000 + {im_out_addr, 2'b00};  // 等价于 im_out_addr * 4
+    wire [31:0] pc_current = 32'h00003000 + {pc_out, 2'b00};  // 等价于 pc_out * 4
 
     // 立即数扩展单元
     wire [31:0] ext_imm16 =  {{14{npc_in_imm16[15]}}, npc_in_imm16, 2'b00}; // 符号扩展+左移2 (beq乘四)
     wire [31:0] ext_imm26 = {pc_current[31:28], npc_in_imm26, 2'b00};      // 直接拼接
 
-    always @(posedge clk) begin
+    always @(*) begin
             // always顺序执行：
             // J-type指令优先级最高
         if (isJump) begin
@@ -139,8 +134,7 @@ module InsMem_1kB (
     input [9:0] pc_out,       // 字地址输入（已对齐）
     input clk,                // 主时钟
     input rst,             // 存储器复位
-    output reg [31:0] im_out_ins, // 32位指令输出
-    // output reg [9:0] im_out_addr // 当前地址输出
+    output reg [31:0] im_out_ins // 32位指令输出
 );
     // 存储器定义（endian：small）
     reg [7:0] regArr_im [0:1023]; // 1024字节 = 256条指令
@@ -152,7 +146,6 @@ module InsMem_1kB (
         if (rst) begin
             // 复位逻辑
             im_out_ins <= 32'h00000000;
-            // im_out_addr <= 10'h000;
             im_out_ins <= {regArr_im[byte_address],   // 最高有效字节
                           regArr_im[byte_address+1],
                           regArr_im[byte_address+2],
@@ -160,8 +153,7 @@ module InsMem_1kB (
             // 存储器清零（可选）
             // for (integer i=0; i<1024; i=i+1) regArr_im[i] <= 8'h00;
         end else begin
-            // 输出当前地址（用于NPC计算）
-            // im_out_addr <= pc_out;
+         
 
             // 大端序读取（按MIPS规范） --- 人类友好
             im_out_ins <= {regArr_im[byte_address],   // 最高有效字节
