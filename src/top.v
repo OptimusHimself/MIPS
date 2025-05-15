@@ -1,6 +1,5 @@
 module top (
-    input clk, rst, rst_regFile, rst_dm,
-    
+    input clk, rst,
     output [31:0] alu_out
 
 );
@@ -14,8 +13,6 @@ module top (
     wire alu_zero;
     wire isJump;
     wire ctrl_dataMem2reg, ctrl_dataMem_Write, ctrl_regFile_write;
-    // wire [31:0] dm_write_data;  //来自regB
-    // wire [31:0] dm_addr;
     wire [4:0] rAddr_dest_rtype;
     wire [4:0] rAddr_source;
     wire [4:0] rAddr_anotherSource_dest;
@@ -57,12 +54,13 @@ module top (
     );
 
     regFile regFile_unit(
-        .clk(clk),.rst_regFile(rst_regFile),
+        .clk(clk),.rst(rst),
         .rAddr_dest_rtype(rAddr_dest_rtype), 
         .rAddr_source(rAddr_source), 
         .rAddr_anotherSource_dest(rAddr_anotherSource_dest),
         .ctrl_regFile_write(ctrl_regFile_write),
         .select_regWritten(select_regWritten),
+        .select_anotherAluSource(select_anotherAluSource),
         .alu_out(alu_out),
         .regA(aluSource1),
         .regB(aluSource2)
@@ -71,9 +69,9 @@ module top (
 
     dataMemory dataMemory_unit(
         .clk(clk),
-        .rst_dm(rst_dm),
+        .rst(rst),
         .dm_addr(alu_out),
-        .dm_write_data(aluSource2), //fix: 
+        .dm_write_data(aluSource2), 
         .ctrl_dataMem_Write(ctrl_dataMem_Write),
         .ctrl_dataMem2reg(ctrl_dataMem2reg),
         .dm_read_data(aluSource2)

@@ -8,25 +8,25 @@ module alu (
     output reg [31:0] alu_out, // ALU计算结果
     output alu_zero  // beq命令，alu作差，如果为零，alu_zero===1
 );
+
     // 当select_anotherAluSource=1时，需要对立即数进行适当处理
     wire [31:0] immediate_zero_ext = {16'b0, imm16}; // ORI用零扩展
     wire [31:0] immediate_lui = {imm16, 16'b0}; // LUI用左移16位
 
     wire [15:0] sign_extend = {16{imm16[15]}};
-    wire [31:0] immediate_sign_ext = {sign_extend, imm16};
+    wire [31:0] immediate_sign_ext = {sign_extend, imm16}; //lw/sw/
 
-    // 选择第二个操作数（寄存器值或立即数）lui操作第二个立即数的拓展规则和
+    // 选择第二个操作数（寄存器值或立即数）
     wire [31:0] operand2 = select_anotherAluSource ? 
-                       ((select_aluPerformance == 2'b01) ? immediate_zero_ext : 
-                        (select_aluPerformance == 2'b11) ? immediate_lui : 
-                        immediate_sign_ext) :
-                       aluSource2;
+                       ((select_aluPerformance == 2'b01 ) ? immediate_zero_ext : 
+                        (select_aluPerformance == 2'b11) ? immediate_lui : immediate_sign_ext) 
+                        :aluSource2;
 
     
     // ALU计算逻辑. 
     always @(*) begin
         case (select_aluPerformance)
-            2'b00: alu_out = aluSource1 + operand2;     // 加法(add/lw/sw) 注意：lw swm, alu out是地址。
+            2'b00: alu_out = aluSource1 + operand2;     // 加法(add/lw/sw) 注意：lw sw, alu out是地址。
             2'b10: alu_out = aluSource1 - operand2;     // 减法(sub/beq)
             2'b01: alu_out = aluSource1 | operand2;     // 或运算(ori)
             2'b11: alu_out = operand2;                  // LUI直接输出立即数
@@ -42,7 +42,7 @@ endmodule
 
 module dataMemory(
     input clk,                     // 时钟信号
-    input rst_dm,                  // 复位信号
+    input rst,                  // 复位信号
     input [31:0] dm_addr,          // 内存地址（来自ALU计算结果）
     input [31:0] dm_write_data,    // 写入数据（来自寄存器组的regB）
     input ctrl_dataMem_Write,      // 写使能信号（高电平有效）
@@ -58,8 +58,8 @@ module dataMemory(
     
     // 同步写入
     integer i;
-    always @(posedge clk or posedge rst_dm) begin
-        if (rst_dm) begin
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
             // 复位：清空内存
             for (i = 0; i < 256; i = i + 1)
                 dm_data[i] <= 32'h0;

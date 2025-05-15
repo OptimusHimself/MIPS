@@ -7,7 +7,9 @@
 // InsMem size: 1KB, im_addr[9:0]
 // `timescale 1ns/1ps1
 
-
+/* 
+beq : 如果control给了isjump/npc_sel，那么npc立刻计算出下一个指令的地址。
+*/
 module insfetch (
     input clk, rst, // 时钟 & reset
     input npc_sel, // 控制NPC行为(跳转 or +4) 由controller给出 =0:default, =1 beq

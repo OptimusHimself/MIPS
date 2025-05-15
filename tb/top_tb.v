@@ -1,16 +1,17 @@
-`timescale 1ns / 1ns
+// make clean && make && make wave TB=top_tb 
+
+`timescale 1ns / 1ps
 
 module top_tb;
     // Testbench signals
     reg clk;
-    reg rst, rst_regFile;
+    reg rst;
     wire [31:0] alu_out;
 
     // DUT instantiation
     top top_unt (
         .clk(clk),
         .rst(rst),
-        .rst_regFile(rst_regFile),
         .alu_out(alu_out)
     );
 
@@ -26,21 +27,19 @@ module top_tb;
     // Reset sequence
     initial begin
         rst = 1;
-        rst_regFile = 1;
-        // #10;
+        #10 
         rst = 0;
-        rst_regFile = 0;
     end
 
     // Test sequence
     initial begin
-        #500
+        #200
         $finish;
     end
 
     // Waveform dump
     initial begin
         $dumpfile("output/waveform_top_tb.vcd");
-        $dumpvars(4, top_tb);
+        $dumpvars(5, top_tb);
     end
 endmodule
