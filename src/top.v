@@ -1,5 +1,5 @@
 module top (
-    input clk, rst_im, rst_pc, rst_regFile, rst_dm
+    input clk, rst,
     output [31:0] alu_out
 
 );
@@ -13,19 +13,18 @@ module top (
     wire alu_zero;
     wire isJump;
     wire ctrl_dataMem2reg, ctrl_dataMem_Write, ctrl_regFile_write;
-    wire dm_write_data;
-    wire [31:0] dm_addr;
-    wire [4:0] rAddr_dest_rtype, rAddr_source, rAddr_anotherSource_dest;
-    wire [1:0] [1:0] select_aluPerformance;
+    wire [4:0] rAddr_dest_rtype;
+    wire [4:0] rAddr_source;
+    wire [4:0] rAddr_anotherSource_dest;
+    wire [1:0] select_aluPerformance;
     wire select_anotherAluSource;
     wire select_regWritten;
-    // wire [31:0] alu_out;
-    wire [31:0] aluSource1, [31:0] aluSource2;
+    wire [31:0] aluSource1;
+    wire [31:0] aluSource2;
     
-    InsFetch_n32 insfetch_unit (
+    insfetch insfetch_unit (
         .clk(clk),
-        .rst_im(rst_im),
-        .rst_pc(rst_pc),
+        .rst(rst),
         .npc_sel(npc_sel), //
         .isJump(isJump),
         .alu_zero(alu_zero),
@@ -43,7 +42,6 @@ module top (
         .rAddr_dest_rtype(rAddr_dest_rtype),
         .rAddr_source(rAddr_source),
         .rAddr_anotherSource_dest(rAddr_anotherSource_dest),
-        .npc_sel(npc_sel),
         .select_regWritten(select_regWritten),
         .imm16(imm16),
         .imm26(imm26),
@@ -56,30 +54,30 @@ module top (
     );
 
     regFile regFile_unit(
-        .clk(clk),.rst_regFile(rst_regFile),
+        .clk(clk),.rst(rst),
         .rAddr_dest_rtype(rAddr_dest_rtype), 
         .rAddr_source(rAddr_source), 
         .rAddr_anotherSource_dest(rAddr_anotherSource_dest),
         .ctrl_regFile_write(ctrl_regFile_write),
         .select_regWritten(select_regWritten),
+        .select_anotherAluSource(select_anotherAluSource),
         .alu_out(alu_out),
-        // output
         .regA(aluSource1),
-        .regB(aluSource2),
+        .regB(aluSource2)
 
     );
 
     dataMemory dataMemory_unit(
         .clk(clk),
-        .rst_dm(rst_dm),
-        .dm_addr(dm_addr),
-        .dm_write_data(dm_write_data),
+        .rst(rst),
+        .dm_addr(alu_out),
+        .dm_write_data(aluSource2), 
         .ctrl_dataMem_Write(ctrl_dataMem_Write),
         .ctrl_dataMem2reg(ctrl_dataMem2reg),
         .dm_read_data(aluSource2)
     );
 
-    alu_core alu_unit(
+    alu alu_unit(
         .select_aluPerformance(select_aluPerformance),
         .select_anotherAluSource(select_anotherAluSource),
         .aluSource1(aluSource1),
